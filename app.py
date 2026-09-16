@@ -9,9 +9,10 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'static/uploads'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
+with open ('secret_key.txt', 'r') as f:
+    key = f.read()
 
-
-app.secret_key = "It's_A_Secret"
+app.secret_key = key
 
 def get_db_connection():
     conn = sqlite3.connect('birthdays.db')
@@ -178,18 +179,28 @@ def home():
     current_date_str = today.strftime("%B %d, %Y") # e.g., September 13, 2026
 
     upcoming_birthdays = []
-    
+    next_birthdays = []
+    today_birthdays = []
+    rest_upcoming = []
     # Logic to calculate upcoming birthdays
     for student in students:
         dob = datetime.strptime(student['dob'], '%Y-%m-%d')
         # Create a birthday date for the current year
-        bday_this_year = datetime(today.year, dob.month, dob.day)
+        bday_this_year = datetime(today.year, dob.month, dob.day +1)
         
         # If the birthday has already passed this year, look at next year
         if bday_this_year < today:
             bday_this_year = datetime(today.year + 1, dob.month, dob.day)
             
         days_until = (bday_this_year - today).days
+        if (days_until == 0) :
+            # Birthday is today
+            today_birthdays.append({
+                'name' : student['name'],
+                'dob': dob.strftime("%B %d"), 
+                'days_until': days_until
+            })
+        
         
         upcoming_birthdays.append({
             'name': student['name'],
@@ -201,12 +212,20 @@ def home():
     upcoming_birthdays.sort(key=lambda x: x['days_until'])
 
     # Split into "Next Birthday" (top box) and "All Upcoming" (bottom box)
-    next_birthday = upcoming_birthdays[0] if upcoming_birthdays else None
-    rest_upcoming = upcoming_birthdays[1:] if len(upcoming_birthdays) > 1 else []
+    if upcoming_birthdays :
+            closest_date = upcoming_birthdays[0]['days_until']
 
-    return render_template('index.html', 
+            for person in upcoming_birthdays :
+                if person['days_until'] == closest_date:
+                    next_birthdays.append(person)
+                else :
+                    rest_upcoming.append(person)
+    # rest_upcoming = upcoming_birthdays[1:] if len(upcoming_birthdays) > 1 else []
+
+    return render_template('index.html',
+                           next_birthdays = next_birthdays,
+                           today_birthdays = today_birthdays, 
                            current_date=current_date_str, 
-                           next_birthday=next_birthday, 
                            rest_upcoming=rest_upcoming)
 
 # --- 1. Quick Add Route (For the Dashboard) ---

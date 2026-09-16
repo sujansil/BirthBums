@@ -4,116 +4,332 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Birthday Tracker</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
     body {
       background:
-        radial-gradient(1000px 600px at 10% -10%, rgba(99,102,241,0.18), transparent 60%),
-        radial-gradient(900px 500px at 100% 0%, rgba(236,72,153,0.15), transparent 55%),
+        radial-gradient(
+          1000px 600px at 10% -10%,
+          rgba(99, 102, 241, 0.18),
+          transparent 60%
+        ),
+        radial-gradient(
+          900px 500px at 100% 0%,
+          rgba(236, 72, 153, 0.15),
+          transparent 55%
+        ),
         #0b0d13;
     }
+
     .glass {
       background: rgba(255, 255, 255, 0.04);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.6);
-      transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+      transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
     }
+
     .glass:hover {
       transform: translateY(-4px);
       border-color: rgba(255, 255, 255, 0.18);
       box-shadow: 0 20px 60px -16px rgba(0, 0, 0, 0.75);
     }
-    .scroll-slim::-webkit-scrollbar { width: 6px; }
-    .scroll-slim::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 9999px; }
+
+    .birthday-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .scroll-slim::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scroll-slim::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 9999px;
+    }
   </style>
 </head>
-<body class="min-h-screen px-6 py-8 text-slate-200 font-sans antialiased selection:bg-indigo-500/40">
 
-  <main class="mx-auto w-full max-w-3xl">
+<body class="min-h-screen px-6 py-8 font-sans text-slate-200 antialiased selection:bg-indigo-500/40">
 
-    <!-- TOP ROW: Date & Actions -->
-    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <main class="mx-auto w-full max-w-6xl">
+
+    <!-- Header -->
+    <header class="mb-6 flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-pink-500 shadow-lg shadow-indigo-500/30">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8V4m-4 4h8m-9 4h10a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4a2 2 0 012-2zm2 0v-1a2 2 0 114 0v1" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 8V4m-4 4h8m-9 4h10a2 2 0 012 2v4a2 2 0 01-2 2H7a2 2 0 01-2-2v-4a2 2 0 012-2zm2 0v-1a2 2 0 114 0v1"
+            />
           </svg>
         </div>
+
         <div>
-          <h1 class="text-xl font-semibold tracking-tight text-white">Birthday Tracker</h1>
+          <h1 class="text-xl font-semibold tracking-tight text-white">
+            Birthday Tracker
+          </h1>
+
           <div class="mt-0.5 flex items-center gap-1.5 text-xs text-slate-400">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+
             <span>{{ current_date }}</span>
           </div>
         </div>
       </div>
 
       <div class="flex items-center gap-2">
-        <a href="/request-birthday" class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110 active:scale-[0.99]">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <a
+          href="/request-birthday"
+          class="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:brightness-110 active:scale-[0.99]"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+
           Add Birthday
         </a>
-        <a href="/logout" class="group flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-red-400/40 hover:bg-red-500/15 hover:text-red-200">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+
+        <a
+          href="/logout"
+          class="group flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:border-red-400/40 hover:bg-red-500/15 hover:text-red-200"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 transition group-hover:-translate-x-0.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            />
+          </svg>
+
           Logout
         </a>
       </div>
-    </div>
+    </header>
 
-    <!-- SPOTLIGHT: The Very Next Birthday -->
+    <!-- Spotlight -->
     <section class="glass mb-6 overflow-hidden rounded-2xl p-8 text-center">
-      <div class="mb-3 inline-flex items-center gap-2 rounded-full bg-pink-500/15 px-3 py-1 text-xs font-medium uppercase tracking-wider text-pink-300">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L23 12l-6.857 2.286L14 21l-2.286-6.857L5 12l6.857-2.143L14 3z"/></svg>
-        Upcoming Birthday
-      </div>
-      {% if next_birthday %}
-        <div class="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-indigo-500/30 to-pink-500/30 text-2xl font-bold text-white">
-          {{ next_birthday.name[0] }}
+
+      {% if today_birthdays %}
+
+        <div class="mb-5 inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-medium uppercase tracking-wider text-emerald-300">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L23 12l-6.857 2.286L14 21l-2.286-6.857L5 12l6.857-2.143L14 3z"
+            />
+          </svg>
+
+          Celebrating Today
         </div>
-        <h3 class="text-2xl font-semibold text-white">{{ next_birthday.name }}</h3>
-        <p class="mt-2 text-sm text-slate-400">
-          {{ next_birthday.dob }}
-          <span class="ml-2 inline-flex items-center rounded-lg bg-indigo-500/15 px-2.5 py-1 text-xs font-medium text-indigo-300">In {{ next_birthday.days_until }} days</span>
-        </p>
+
+        <div class="birthday-grid">
+          {% for birthday in today_birthdays %}
+            <article class="rounded-xl border border-emerald-400/20 bg-emerald-500/[0.06] p-5 transition hover:bg-emerald-500/[0.10]">
+              <div class="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-emerald-500/40 to-cyan-500/40 text-2xl font-bold text-white">
+                {{ birthday.name[0] }}
+              </div>
+
+              <h3 class="text-lg font-semibold text-white">
+                {{ birthday.name }}
+              </h3>
+
+              <p class="mt-2 text-sm text-emerald-200">
+                Happy Birthday
+              </p>
+            </article>
+          {% endfor %}
+        </div>
+
+      {% elif next_birthdays %}
+
+        <div class="mb-5 inline-flex items-center gap-2 rounded-full bg-pink-500/15 px-3 py-1 text-xs font-medium uppercase tracking-wider text-pink-300">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L23 12l-6.857 2.286L14 21l-2.286-6.857L5 12l6.857-2.143L14 3z"
+            />
+          </svg>
+
+          Upcoming Birthdays
+        </div>
+
+        <div class="birthday-grid">
+          {% for birthday in next_birthdays %}
+            <article class="rounded-xl border border-white/10 bg-white/[0.04] p-5 transition hover:bg-white/[0.08]">
+              <div class="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-indigo-500/30 to-pink-500/30 text-2xl font-bold text-white">
+                {{ birthday.name[0] }}
+              </div>
+
+              <h3 class="text-lg font-semibold text-white">
+                {{ birthday.name }}
+              </h3>
+
+              <p class="mt-2 text-sm text-slate-400">
+                {{ birthday.dob }}
+              </p>
+
+              <span class="mt-2 inline-flex items-center rounded-lg bg-indigo-500/15 px-2.5 py-1 text-xs font-medium text-indigo-300">
+                In {{ birthday.days_until }} days
+              </span>
+            </article>
+          {% endfor %}
+        </div>
+
       {% else %}
-        <p class="text-sm text-slate-400">No birthdays found in the database.</p>
+
+        <p class="text-sm text-slate-400">
+          No birthdays found in the database.
+        </p>
+
       {% endif %}
     </section>
 
-    <!-- LIST: All other upcoming birthdays -->
+    <!-- Remaining Birthdays -->
     <section class="glass rounded-2xl p-6">
       <div class="mb-5 flex items-center gap-3">
         <span class="grid h-9 w-9 place-items-center rounded-lg bg-cyan-500/20 text-cyan-300">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
         </span>
-        <h2 class="text-base font-semibold text-white">All Upcoming Birthdays</h2>
+
+        <h2 class="text-base font-semibold text-white">
+          All Upcoming Birthdays
+        </h2>
       </div>
 
       <ul class="scroll-slim max-h-96 space-y-3 overflow-y-auto pr-1">
         {% for bday in rest_upcoming %}
           <li class="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.03] px-4 py-3 transition hover:bg-white/[0.06]">
             <div class="flex items-center gap-3">
-              <div class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-indigo-500/30 to-cyan-500/30 text-sm font-semibold text-white">{{ bday.name[0] }}</div>
+              <div class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-indigo-500/30 to-cyan-500/30 text-sm font-semibold text-white">
+                {{ bday.name[0] }}
+              </div>
+
               <div>
-                <p class="text-sm font-medium text-white">{{ bday.name }}</p>
-                <p class="text-xs text-slate-400">{{ bday.dob }} · In {{ bday.days_until }} days</p>
+                <p class="text-sm font-medium text-white">
+                  {{ bday.name }}
+                </p>
+
+                <p class="text-xs text-slate-400">
+                  {{ bday.dob }} · In {{ bday.days_until }} days
+                </p>
               </div>
             </div>
-            <a href="/plan" class="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-indigo-500/20 hover:text-indigo-200">Plan</a>
+
+            <a
+              href="/plan"
+              class="rounded-lg bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-indigo-500/20 hover:text-indigo-200"
+            >
+              Plan
+            </a>
           </li>
         {% else %}
-          <li class="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-6 text-center text-sm text-slate-400">No other upcoming birthdays.</li>
+          <li class="rounded-xl border border-white/5 bg-white/[0.03] px-4 py-6 text-center text-sm text-slate-400">
+            No other upcoming birthdays.
+          </li>
         {% endfor %}
       </ul>
     </section>
-
   </main>
 
-  <!-- FLOATING SUGGESTION BUTTON -->
-  <a href="/suggestion" class="fixed bottom-6 left-6 z-50 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200 shadow-lg shadow-black/40 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-pink-400/40 hover:bg-pink-500/15 hover:text-pink-200">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3a6 6 0 00-3.75 10.687c.47.373.75.94.75 1.538V16h6v-.775c0-.598.28-1.165.75-1.538A6 6 0 0012 3z"/></svg>
+  <!-- Suggestion Button -->
+  <a
+    href="/suggestion"
+    class="fixed bottom-6 left-6 z-50 flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-200 shadow-lg shadow-black/40 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-pink-400/40 hover:bg-pink-500/15 hover:text-pink-200"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      class="h-4 w-4"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        d="M9.663 17h4.673M12 3a6 6 0 00-3.75 10.687c.47.373.75.94.75 1.538V16h6v-.775c0-.598.28-1.165.75-1.538A6 6 0 0012 3z"
+      />
+    </svg>
+
     Drop a Suggestion
   </a>
 
