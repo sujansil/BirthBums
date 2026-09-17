@@ -42,9 +42,9 @@ To run a development server locally, follow the steps below:
 3.**Install dependencies:**
   ```bash
   pip install -r requirements.txt
-
+  ```
 4.**Launch the application:**
   ```bash
   python app.py  # Update this if your main entry file is named differently
-
+  ```
 The application will initialize on http://localhost:5000
