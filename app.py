@@ -36,7 +36,6 @@ def register():
                 (username, password, name, room_no, dob)
             )
             
-            # If they provided a DOB, let's automatically add them to the birthday tracker too!
             if dob:
                 conn.execute('INSERT INTO students (name, dob) VALUES (?, ?)', (name, dob))
                 
@@ -63,10 +62,9 @@ def admin_login():
         username = request.form['username']
         password = request.form['password']
 
-        # 2. Check if they are in the list AND the password matches
         if username in ADMIN_USERS and ADMIN_USERS[username] == password:
             session['is_admin'] = True
-            session['logged_in_user'] = username # Logs you in under your specific admin name
+            session['logged_in_user'] = username 
             return redirect(url_for('admin_dashboard'))
         else:
             error = "Invalid Admin Credentials"
@@ -75,28 +73,22 @@ def admin_login():
 
 @app.route('/admin-dashboard')
 def admin_dashboard():
-    # Security check: Kick them out if they aren't an admin
     if not session.get('is_admin'):
         return redirect(url_for('login'))
 
     conn = get_db_connection()
     
-    # 1. Get all registered users (for Column 2)
     users = conn.execute('SELECT * FROM users').fetchall()
     
-    # 2. Get all birthday entries (for Column 1 List)
     all_birthdays = conn.execute('SELECT * FROM students').fetchall()
 
-    # NEW: Fetch all pending birthday requests
     bday_requests = conn.execute('SELECT * FROM birthday_requests').fetchall()
 
-    #Fetch all the suggestions
     suggestions = conn.execute('SELECT * FROM suggestions').fetchall()
     conn.close()
 
 
 
-    # 3. Calculate Upcoming Birthday (for Column 1 Spotlight)
     today = datetime.now()
     upcoming_birthdays = []
     
@@ -113,7 +105,7 @@ def admin_dashboard():
             'name': student['name'],
             'dob': dob.strftime("%B %d"), 
             'days_until': days_until,
-            'raw_dob': student['dob'] # Keeping raw date for editing later
+            'raw_dob': student['dob'] 
         })
 
     upcoming_birthdays.sort(key=lambda x: x['days_until'])
@@ -151,7 +143,6 @@ def login():
         conn.close()
 
         if user:
-            # Login successful! Save their username in the session
             session['logged_in_user'] = user['username']
             session['user_name'] = user['name']
             return redirect(url_for('home'))
@@ -162,12 +153,11 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.clear() # Deletes the session data
+    session.clear() 
     return redirect(url_for('login'))
 
 @app.route('/')
 def home():
-    # Check if the user is logged in
     if 'logged_in_user' not in session:
         return redirect(url_for('login'))
     
@@ -176,19 +166,19 @@ def home():
     conn.close()
 
     today = datetime.now()
-    current_date_str = today.strftime("%B %d, %Y") # e.g., September 13, 2026
+    current_date_str = today.strftime("%B %d, %Y")
 
     upcoming_birthdays = []
     next_birthdays = []
     today_birthdays = []
     rest_upcoming = []
-    # Logic to calculate upcoming birthdays
+  
     for student in students:
         dob = datetime.strptime(student['dob'], '%Y-%m-%d')
-        # Create a birthday date for the current year
+        
         bday_this_year = datetime(today.year, dob.month, dob.day +1)
         
-        # If the birthday has already passed this year, look at next year
+        
         if bday_this_year < today:
             bday_this_year = datetime(today.year + 1, dob.month, dob.day)
             
@@ -208,10 +198,8 @@ def home():
             'days_until': days_until
         })
 
-    # Sort the list so the closest birthdays are at the top
     upcoming_birthdays.sort(key=lambda x: x['days_until'])
 
-    # Split into "Next Birthday" (top box) and "All Upcoming" (bottom box)
     if upcoming_birthdays :
             closest_date = upcoming_birthdays[0]['days_until']
 
@@ -228,7 +216,6 @@ def home():
                            current_date=current_date_str, 
                            rest_upcoming=rest_upcoming)
 
-# --- 1. Quick Add Route (For the Dashboard) ---
 @app.route('/admin/add_birthday', methods=['POST'])
 def admin_add_birthday():
     if not session.get('is_admin'):
@@ -244,7 +231,6 @@ def admin_add_birthday():
     
     return redirect(url_for('admin_dashboard'))
 
-# --- 2. Edit Route ---
 @app.route('/edit_birthday/<int:student_id>', methods=['GET', 'POST'])
 def edit_birthday(student_id):
     if not session.get('is_admin'):
@@ -252,7 +238,6 @@ def edit_birthday(student_id):
         
     conn = get_db_connection()
     
-    # If the admin submits the edited form
     if request.method == 'POST':
         name = request.form['student_name']
         dob = request.form['student_dob']
@@ -261,7 +246,7 @@ def edit_birthday(student_id):
         conn.close()
         return redirect(url_for('admin_dashboard'))
         
-    # If it's a GET request, fetch the current data to pre-fill the form
+    
     student = conn.execute('SELECT * FROM students WHERE id = ?', (student_id,)).fetchone()
     conn.close()
     
@@ -274,9 +259,9 @@ def request_birthday():
         
     if request.method == 'POST':
         name = request.form['name']
-        dob = request.form['dob'] # <--- Capturing the new DOB field
+        dob = request.form['dob']
         room_no = request.form.get('room_no', '')
-        requested_by = session['logged_in_user'] # <--- Automatically tracking who sent it
+        requested_by = session['logged_in_user']
         
         proof_filename = ""
         if 'proof' in request.files:
@@ -301,13 +286,12 @@ def approve_request(req_id):
         return redirect(url_for('login'))
         
     conn = get_db_connection()
-    # 1. Get the request data
+    
     req = conn.execute('SELECT * FROM birthday_requests WHERE id = ?', (req_id,)).fetchone()
     
     if req:
-        # 2. Insert it into the official students table
         conn.execute('INSERT INTO students (name, dob) VALUES (?, ?)', (req['name'], req['dob']))
-        # 3. Delete it from the pending requests table
+
         conn.execute('DELETE FROM birthday_requests WHERE id = ?', (req_id,))
         conn.commit()
         

@@ -1,10 +1,8 @@
 import sqlite3
 
-# Connect to SQLite (this creates the file if it doesn't exist)
 conn = sqlite3.connect('birthdays.db')
 cursor = conn.cursor()
 
-# Create the students table
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS students (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -13,7 +11,6 @@ cursor.execute('''
     )
 ''')
 
-# Create the users table for logins
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
